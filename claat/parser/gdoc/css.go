@@ -30,8 +30,8 @@ const (
 	buttonColor     = "#6aa84f"     // button background color
 	fontCode        = "courier new" // source code format in original doc
 	fontConsole     = "consolas"    // terminal text format in original doc
-	ibPositiveColor = "#d9ead3"     // positive infobox background
-	ibNegativeColor = "#fce5cd"     // negative infobox background
+	ibNoteColor     = "#d9ead3"     // note infobox background
+	ibWarningColor  = "#fce5cd"     // warning infobox background
 	surveyColor     = "#cfe2f3"     // survey background color
 )
 

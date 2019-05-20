@@ -574,6 +574,9 @@ class Codelab extends HTMLElement {
         timeContainer.style.display = 'none';
         return;
       }
+      else if (time && timeContainer.style.display === "none") {
+        timeContainer.style.display = 'visible';
+      }
 
       // Update the time container with remaining time.
       const newTimeEl =  soy.renderAsElement(Templates.timeRemaining, {time});

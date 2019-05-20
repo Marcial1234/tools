@@ -435,8 +435,15 @@ type InfoboxKind string
 
 // InfoboxNode variations.
 const (
-	InfoboxPositive InfoboxKind = "special"
-	InfoboxNegative InfoboxKind = "warning"
+	InfoboxNote     InfoboxKind = "note"
+	InfoboxWarning  InfoboxKind = "warning"
+)
+
+var (
+	InfoboxMappings = map[string]InfoboxKind{
+		"note":    InfoboxNote,
+		"warning": InfoboxWarning,
+	}
 )
 
 // InfoboxNode is any regular header, a checklist header, or an FAQ header.

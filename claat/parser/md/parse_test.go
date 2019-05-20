@@ -157,3 +157,7 @@ feedback link: https://www.google.com
 		t.Errorf("\ngot:\n%+v\nwant:\n%+v", c.Meta, wantMeta)
 	}
 }
+
+func TestInfoboxes(t *testing.T) {
+// struct => MD?
+}

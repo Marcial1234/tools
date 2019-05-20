@@ -24,6 +24,9 @@ import (
 	"strings"
 
 	"github.com/googlecodelabs/tools/claat/types"
+	// this is an alias... but still
+	// can't extract 'stringifyNode' from md/html.go@stringifyNode
+	// stringifyNode "github.com/googlecodelabs/tools/claat/parser/md"
 )
 
 // TODO: render HTML using golang/x/net/html or template.
@@ -50,9 +53,9 @@ func WriteHTML(w io.Writer, env string, nodes ...types.Node) error {
 	return hw.write(nodes...)
 }
 
-// ReplaceDoubleCurlyBracketsWithEntity replaces Double Curly Brackets with their charater entity.
-func ReplaceDoubleCurlyBracketsWithEntity(s string) string {
-	return strings.Replace(s, "{{", "&#123;&#123;", -1)
+// ReplaceCurlyBracketsWithEntity replaces Double Curly Brackets with their charater entity.
+func ReplaceCurlyBracketsWithEntity(s string) string {
+	return strings.Replace(s, "{", "&#123;", -1)
 }
 
 type htmlWriter struct {
@@ -138,7 +141,7 @@ func (hw *htmlWriter) writeFmt(f string, a ...interface{}) {
 
 func (hw *htmlWriter) writeEscape(s string) {
 	s = htmlTemplate.HTMLEscapeString(s)
-	hw.writeString(ReplaceDoubleCurlyBracketsWithEntity(s))
+	hw.writeString(ReplaceCurlyBracketsWithEntity(s))
 }
 
 func (hw *htmlWriter) text(n *types.TextNode) {
@@ -152,7 +155,7 @@ func (hw *htmlWriter) text(n *types.TextNode) {
 		hw.writeString("<code>")
 	}
 	s := htmlTemplate.HTMLEscapeString(n.Value)
-	s = ReplaceDoubleCurlyBracketsWithEntity(s)
+	s = ReplaceCurlyBracketsWithEntity(s)
 	hw.writeString(strings.Replace(s, "\n", "<br>", -1))
 	if n.Code {
 		hw.writeString("</code>")
@@ -214,7 +217,7 @@ func (hw *htmlWriter) button(n *types.ButtonNode) {
 	}
 	hw.writeBytes(greaterThan)
 	if n.Download {
-		hw.writeString(`<iron-icon icon="file-download"></iron-icon>`)
+		hw.writeString(`<iron-icon class="material-icons">cloud_download</iron-icon>`)
 	}
 	hw.write(n.Content.Nodes...)
 	hw.writeString("</paper-button>")

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO: change all these to use text.templates instead!
+
 package render
 
 import (
@@ -239,12 +241,7 @@ func (mw *mdWriter) itemsList(n *types.ItemsListNode) {
 }
 
 func (mw *mdWriter) infobox(n *types.InfoboxNode) {
-	// TODO: This should use the "detail item" syntax so that it can be pure MD and not HTML
-	// kind
-	// : <content>
-	//
-	// The main issue is that when you do write(n.Content.Nodes...) it always adds two newlines
-	// at the beginning.
+	// TODO: This should use the "detail item" syntax so that it can be pure MD
 	mw.newBlock()
 	mw.writeString(`<aside class="`)
 	mw.writeString(string(n.Kind))

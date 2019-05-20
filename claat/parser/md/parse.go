@@ -200,6 +200,7 @@ func parseMarkup(markup *html.Node) (*types.Codelab, error) {
 			if err := parseMetadata(ds); err != nil {
 				return nil, err
 			}
+			// newStep(ds)
 			continue
 		case ds.cur.DataAtom == atom.H2:
 			newStep(ds)
@@ -212,8 +213,6 @@ func parseMarkup(markup *html.Node) (*types.Codelab, error) {
 	}
 
 	finalizeStep(ds.step) // TODO: last ds.step is never finalized in newStep
-	ds.clab.Tags = util.Unique(ds.clab.Tags)
-	sort.Strings(ds.clab.Tags)
 	ds.clab.Duration = int(ds.totdur.Minutes())
 	return ds.clab, nil
 }
@@ -278,11 +277,11 @@ func parseNode(ds *docState) (types.Node, bool) {
 	case isMeta(ds.cur):
 		metaStep(ds)
 		return nil, true
-	case ds.cur.Type == html.TextNode || ds.cur.DataAtom == atom.Br:
+	case isText(ds.cur):
 		return text(ds), true
-	case ds.cur.DataAtom == atom.A:
+	case isLink(ds.cur):
 		return link(ds), true
-	case ds.cur.DataAtom == atom.Img:
+	case isImage(ds.cur):
 		return image(ds), true
 	case isButton(ds.cur):
 		return button(ds), true
@@ -469,9 +468,6 @@ func header(ds *docState) types.Node {
 
 // infobox doesn't have a block parent.
 func infobox(ds *docState) types.Node {
-	negativeInfoBox := isInfoboxNegative(ds.cur)
-	// iterate twice on next sibling as there is a \n node in between
-	ds.cur = ds.cur.NextSibling.NextSibling
 	ds.push(nil)
 	nn := parseSubtree(ds)
 	nn = blockNodes(nn)
@@ -480,10 +476,7 @@ func infobox(ds *docState) types.Node {
 	if len(nn) == 0 {
 		return nil
 	}
-	kind := types.InfoboxPositive
-	if negativeInfoBox {
-		kind = types.InfoboxNegative
-	}
+	kind := types.InfoboxMappings[classList(ds.cur)[0]]
 	return types.NewInfoboxNode(kind, nn...)
 }
 

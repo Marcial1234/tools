@@ -85,15 +85,15 @@ func isInfobox(css cssStyle, hn *html.Node) bool {
 	if hn.DataAtom != atom.Td {
 		return false
 	}
-	return hasClassStyle(css, hn, "background-color", ibPositiveColor) ||
-		isInfoboxNegative(css, hn)
+	return hasClassStyle(css, hn, "background-color", ibNoteColor) ||
+		isInfoboxWarning(css, hn)
 }
 
-func isInfoboxNegative(css cssStyle, hn *html.Node) bool {
+func isInfoboxWarning(css cssStyle, hn *html.Node) bool {
 	if hn.DataAtom != atom.Td {
 		return false
 	}
-	return hasClassStyle(css, hn, "background-color", ibNegativeColor)
+	return hasClassStyle(css, hn, "background-color", ibWarningColor)
 }
 
 func isSurvey(css cssStyle, hn *html.Node) bool {

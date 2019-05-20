@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	// "bytes"
 	"encoding/json"
 	"fmt"
 	"hash/crc64"
@@ -74,6 +75,12 @@ func slurpCodelab(src, authToken string) (*codelab, error) {
 		return nil, err
 	}
 	defer res.body.Close()
+	// this is direct from source..
+	// res := &resource{
+	// 	body: ioutil.NopCloser(bytes.NewReader([]byte(src))),
+	// 	typ:  srcMarkdown,
+	// 	mod:  time.Now(),
+	// }
 	clab, err := parser.Parse(string(res.typ), res.body)
 	if err != nil {
 		return nil, err

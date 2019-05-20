@@ -410,7 +410,7 @@ func TestParseDoc(t *testing.T) {
 	n1.MutateBlock(true)
 	n2 := types.NewListNode(types.NewTextNode("negative box."))
 	n2.MutateBlock(true)
-	box := types.NewInfoboxNode(types.InfoboxNegative, n1, n2)
+	box := types.NewInfoboxNode(types.InfoboxWarning, n1, n2)
 	content.Append(box)
 
 	sv := types.NewSurveyNode("test-codelab-1")

@@ -228,8 +228,6 @@ func parseDoc(doc *html.Node) (*types.Codelab, error) {
 	}
 
 	finalizeStep(ds.step) // TODO: last ds.step is never finalized in newStep
-	ds.clab.Tags = util.Unique(ds.clab.Tags)
-	sort.Strings(ds.clab.Tags)
 	ds.clab.Duration = int(ds.totdur.Minutes())
 	return ds.clab, nil
 }
@@ -477,16 +475,11 @@ func header(ds *docState) types.Node {
 func infobox(ds *docState) types.Node {
 	ds.push(nil, ds.flags|fSkipCode|fSkipInfobox|fSkipSurvey)
 	nn := parseSubtree(ds)
-	nn = blockNodes(nn)
-	nn = compactNodes(nn)
 	ds.pop()
 	if len(nn) == 0 {
 		return nil
 	}
-	kind := types.InfoboxPositive
-	if isInfoboxNegative(ds.css, ds.cur) {
-		kind = types.InfoboxNegative
-	}
+	kind := types.InfoboxMappings[classList(ds.cur)[0]]
 	return types.NewInfoboxNode(kind, nn...)
 }
 

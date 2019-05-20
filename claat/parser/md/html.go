@@ -16,10 +16,13 @@ package md
 
 import (
 	"bytes"
+	"sort"
 	"strings"
 
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
+
+	"github.com/googlecodelabs/tools/claat/types"
 )
 
 var (
@@ -43,6 +46,18 @@ func isHeader(hn *html.Node) bool {
 func isMeta(hn *html.Node) bool {
 	elem := strings.ToLower(hn.Data)
 	return strings.HasPrefix(elem, metaDuration+metaSep) || strings.HasPrefix(elem, metaEnvironment+metaSep)
+}
+
+func isText(hn *html.Node) bool {
+	return hn.Type == html.TextNode || hn.DataAtom == atom.Br
+}
+
+func isLink(hn *html.Node) bool {
+	return hn.DataAtom == atom.A
+}
+
+func isImage(hn *html.Node) bool {
+	return hn.DataAtom == atom.Img
 }
 
 func isBold(hn *html.Node) bool {
@@ -80,25 +95,38 @@ func isButton(hn *html.Node) bool {
 	return false
 }
 
-func isInfobox(hn *html.Node) bool {
-	if hn.DataAtom != atom.Dt {
-		return false
-	}
-	return strings.ToLower(hn.FirstChild.Data) == "positive" || isInfoboxNegative(hn)
+func isAside(hn *html.Node) bool {
+	return hn.DataAtom == atom.Aside
 }
 
-func isInfoboxNegative(hn *html.Node) bool {
-	if hn.DataAtom != atom.Dt {
-		return false
+// returns a slice of all CSS classes of node hn.
+func classList(hn *html.Node) []string {
+	var classes string
+	for _, a := range hn.Attr {
+		if a.Key == "class" {
+			classes = a.Val
+			break
+		}
 	}
-	return strings.ToLower(hn.FirstChild.Data) == "negative"
+	a := strings.Split(classes, " ")
+	sort.Strings(a)
+	return a
+}
+
+// returns true if the node hn has CSS class name.
+func hasClass(hn *html.Node, name string) bool {
+	cls := classList(hn)
+	i := sort.SearchStrings(cls, name)
+	return i < len(cls) && cls[i] == name
+}
+
+func isInfobox(hn *html.Node) bool {
+	return isAside(hn) && (hasClass(hn, string(types.InfoboxNote)) ||
+												 hasClass(hn, string(types.InfoboxWarning)))
 }
 
 func isSurvey(hn *html.Node) bool {
-	if hn.DataAtom != atom.Dt {
-		return false
-	}
-	return strings.ToLower(hn.FirstChild.Data) == "survey"
+	return isAside(hn) && strings.ToLower(hn.FirstChild.Data) == "survey"
 }
 
 func isTable(hn *html.Node) bool {
