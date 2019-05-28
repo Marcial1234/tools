@@ -13,3 +13,8 @@ func Unique(a []string) []string {
 	}
 	return res
 }
+
+type TestingBatch struct {
+	i string
+	o string
+}
