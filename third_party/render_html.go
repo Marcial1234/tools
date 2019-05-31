@@ -1,10 +1,13 @@
 package devrel_tutorial
 
 import (
+	"go/build"
+	"path/filepath"
 	"text/template"
 )
 
 func init() {
+	htmlTmplsDir := filepath.Join(build.Default.GOPATH, htmlTmplsRltvDir)
 	html = template.Must(template.New("master").ParseGlob(htmlTmplsDir))
 }
 

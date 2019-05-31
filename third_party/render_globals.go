@@ -3,13 +3,15 @@ package devrel_tutorial
 import (
 	"bytes"
 	"text/template"
+
 	"github.com/googlecodelabs/tools/claat/util"
 )
 
-// Reviewing comment: Templates can live anywhere within the repo
+// Reviewing comment: Templates can live anywhere within the repo, putting them
+// here for now
 const (
-	mdTmplsDir = "github.com/googlecodelabs/tools/third_party/templates/md/*"
-	htmlTmplsDir = "github.com/googlecodelabs/tools/third_party/templates/html/*"
+	mdTmplsRltvDir   = "src/github.com/googlecodelabs/tools/third_party/templates/md/*"
+	htmlTmplsRltvDir = "src/github.com/googlecodelabs/tools/third_party/templates/html/*"
 )
 
 var (
