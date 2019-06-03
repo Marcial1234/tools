@@ -1,53 +1,60 @@
 package devrel_tutorial
 
 import (
-	"testing"
 	"github.com/googlecodelabs/tools/claat/util"
+	"testing"
 )
 
-func TestRenderHeadingMd(t *testing.T) {
-	h2 := &Heading{
-    Level: 2,
-    Text: "<script>some _very_ bad code!;</script>",
-	}
-	h3 := &Heading{
-    Level: 3,
-    Text: "D@ ?òü ǝ$çâpæ? {+_~}! ^<^ |*_*| {&]",
-	}
-	h4 := &Heading{
-    Level: 4,
-    Text: "**__Extra Markdown not ![pro](cessed)__**",
-	}
-	tests := []*util.TestingBatch {
-		{h2.Md(), "#### <script>some _very_ bad code!;</script>"},
-		{h3.Md(), "##### D@ ?òü ǝ$çâpæ? {+_~}! ^<^ |*_*| {&]"},
-		{h4.Md(), "###### **__Extra Markdown not ![pro](cessed)__**"},
+func TestRenderMdHeading(t *testing.T) {
+	tests := []*util.TestingBatch{
+		{
+			&Heading{
+				Text:  "<script>some _very_ bad code!;</script>",
+				Level: 2,
+			}.Md(),
+			"#### <script>some _very_ bad code!;</script>"},
+		{
+			&Heading{
+				Text:  "D@ ?òü ǝ$çâpæ? {+_~}! ^<^ |*_*| {&]",
+				Level: 3,
+			}.Md(),
+			"##### D@ ?òü ǝ$çâpæ? {+_~}! ^<^ |*_*| {&]"},
+		{
+			&Heading{
+				Text:  "**__Extra Markdown not ![pro](cessed)__**",
+				Level: 4,
+			}.Md(),
+			"###### **__Extra Markdown not ![pro](cessed)__**"},
 	}
 	util.TestBatch(tests, t)
 }
 
-func TestRenderHtmlStylizedText(t *testing.T) {
-	p := &StylizedText{
-		Text: "hello!",
-	}
-	b := &StylizedText{
-		Text:   "hello!",
-		IsBold: true,
-	}
-	i := &StylizedText{
-		Text:         "hello!",
-		IsEmphasized: true,
-	}
-	b_i := &StylizedText{
-		Text:         "hello!",
-		IsBold:       true,
-		IsEmphasized: true,
-	}
+func TestRenderMdStylizedText(t *testing.T) {
 	tests := []*util.TestingBatch{
-		{p.Md(), "hello!"},
-		{b.Md(), "**hello!**"},
-		{i.Md(), "__hello!__"},
-		{b_i.Md(), "**__hello!__**"},
+		{
+			&StylizedText{
+				Text: "hello!",
+			}.Md(),
+			"hello!"},
+		{
+			&StylizedText{
+				Text:   "hello!",
+				IsBold: true,
+			}.Md(),
+			"**hello!**"},
+		{
+			&StylizedText{
+				Text:         "hello!",
+				IsEmphasized: true,
+			}.Md(),
+			"__hello!__"},
+		{
+			&StylizedText{
+				Text:         "hello!",
+				IsBold:       true,
+				IsEmphasized: true,
+			}.Md(),
+			"**__hello!__**"},
 	}
 	util.TestBatch(tests, t)
 }

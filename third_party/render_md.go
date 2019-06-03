@@ -1,19 +1,22 @@
 package devrel_tutorial
 
 import (
+	"go/build"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
-
-func repeatedHeading(level int32) string {
-	return strings.Repeat("#", int(level))
-}
 
 func init() {
 	funcMap := template.FuncMap{
 		"repeatedHeading": repeatedHeading,
 	}
-	md = template.Must(template.New("master").Funcs(funcMap).ParseGlob(mdTmplsDir))
+	mdTmplsAbsDir := filepath.Join(build.Default.GOPATH, mdTmplsRltvDir)
+	md = template.Must(template.New("master").Funcs(funcMap).ParseGlob(mdTmplsAbsDir))
+}
+
+func repeatedHeading(level int32) string {
+	return strings.Repeat("#", int(level))
 }
 
 // TODO if possible: Template names follow its calling struct type,
