@@ -9,20 +9,20 @@ func TestRenderHtmlHeading(t *testing.T) {
 	tests := []*util.TestingBatch{
 		{
 			&Heading{
-				Text: "hello!",
+				Text: "<script>some _very_ bad code!;</script>",
 			}.Html(),
 			"<h2>&lt;script&gt;some _very_ bad code!&lt;/script&gt;</h2>",
 		},
 		{
 			&Heading{
-				Text:   "hello!",
+				Text:   "D@ ?òü ǝ$çâpæ? {+_~}! ^<^ |*_*| {&]",
 				IsBold: true,
 			}.Html(),
 			"<h3>D@ ?òü ǝ$çâpæ urlquery? &#39;&gt;__&lt;&#39; {&amp;]</h3>",
 		},
 		{
 			&Heading{
-				Text:         "hello!",
+				Text:         "**__Extra Markdown not ![pro](cessed)__**",
 				IsEmphasized: true,
 			}.Html(),
 			"<h4>**__Markdown not ![esca](ped)__**</h4>",
