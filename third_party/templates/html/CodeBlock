@@ -1,0 +1,5 @@
+<pre>
+  <code {{if .Lang}} language={{.Lang}} class={{.Lang}} {{end -}}>
+    {{.Text}}
+  </code>
+</pre>

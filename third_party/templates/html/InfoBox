@@ -1,0 +1,3 @@
+<aside class="{{.Disposition.String}}">
+  {{- .Children.Html -}}
+</aside>

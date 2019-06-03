@@ -1,0 +1,134 @@
+// Copyright 2019 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package devrel.codelab;
+
+// TODO: reverse listing order to make reading this more intuitive
+
+message Fragment {
+  // TODO
+}
+
+message Link {
+  string text = 1;
+  string location = 2;
+};
+
+message Button {
+  Link link = 1;
+  bool isDownloadButton = 2;
+}
+
+message InlineContent {
+  oneof content {
+    string text = 1;
+    string strong_text = 2;
+    string emphasized_text = 3;
+    string inline_code_text = 4;
+    Link link = 5;
+  }
+};
+
+message Heading {
+  // repeated InlineContent inline_contents = 1;
+  string text = 3;
+  int32 level = 2;
+
+  reserved 1;
+};
+
+message Image {
+  string source = 1;
+  string size = 2;
+  string alt_title = 3;
+  string alt_description = 4;
+};
+
+message YoutubeVideo {
+  Image ImageSource = 1;
+}
+
+message InfoBox {
+  repeated InlineContent inline_contents = 1;
+
+  enum Disposition {
+    UNKNOWN_DISPOSITION = 0;
+    // POSITIVE = 1;
+    // NEGATIVE = 2;
+    NOTE = 1;
+    WARNING = 2;
+  };
+  Disposition disposition = 2;
+};
+
+message CodeBlock {
+  string text = 4;
+  string language_hint = 3;
+
+  reserved 1, 2;
+};
+
+message List {
+  repeated InlineContent step = 1;
+
+  enum ListVariety {
+    UNKNOWN_VARIETY = 0;
+    ORDERED = 1;
+    UNORDERED = 2;
+  }
+  ListVariety list_variety = 2;
+};
+
+message BlockContent {
+  oneof content {
+    Image image = 2;
+    InfoBox info_box = 3;
+    CodeBlock code_block = 4;
+  }
+
+  reserved 1, 5, 6;
+};
+
+message Step {
+  string title = 1;
+  int32 duration = 4;
+  repeated BlockContent contents = 3;
+
+  reserved 2;
+};
+
+message Metadata {
+  string title = 8;
+  string summary = 1;  // use?
+  string url_id = 2;
+  string environment = 3;  // still used?
+  string category = 4;  //
+  string status = 5;  // even needed?
+  string feedback_link = 6;
+  int32 total_duration = 7;
+}
+// .dev so far has:
+// [Title]
+// [Topics]
+// [Creator]
+// [Last updated]
+
+message Tutorial {
+  Metadata meta = 1;
+  repeated Step steps = 3;
+
+  reserved 2;
+};

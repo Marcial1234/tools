@@ -1,0 +1,3 @@
+<a href="{{.Href}}" target="_blank">
+  {{- .Text.Html -}}
+</a>

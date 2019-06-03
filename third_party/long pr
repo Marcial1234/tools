@@ -1,0 +1,246 @@
+[design-ideas].Render
+
+On this PR, I'd like to discuss the implemention of the future proto to md-and-html render.
+
+Given the posibility of future "quick fixes" and small feature additions, which of these (or any other) cases can serve as an optimal debt-minimizing default-architecture? Where do we draw the over-engineering line?
+
+**Note**: Code only on descriptions for on this PR, thought of too many permutations. However, the complex case has already been achieved. Ignore writings to Stdout.
+
+Base util function:
+```go
+package util
+...
+func LogIfError(err error) {
+  if err != nil {
+    log.Fatal(err)
+  }
+}
+```
+
+### Templating Logic Ideas
+- The smallest writable units are entire elements (as `templates`) instead of cumbersome conditional and nil-checking logic. Templates contain conditional logic and some dynamic actions (e.g. multiply "#" per `Headings.Level`)
+- We drop the collocation of boilerplate templates and their rendering, and instead store the templates in a global-to-package map. We also add a global template variable to register all templates immediately to reuse the object.
+- We stored templates in files _without extensions_ to maintain proto-message-type-to-template-name mappings, and register them with `template.ParseFiles`.
+
+Templating Logic
+```go
+// global-to-package
+var (
+  t = template.New("master-template-var")
+  ts = []string{
+    "path/to/template/html/heading",
+    // others...
+  }
+)
+...
+var tmp_paths []string
+for tmp_name := range ts { 
+  tmp_paths.append(tmp_name)
+}
+t.ParseFiles(tmp_paths...)
+...
+// "path/to/template/html/heading" file
+<h{{.Level}}> {{.Text}} </h{{.Level}}>
+```
+
+Base proto logic, passing global variable with all template definitions:
+```go
+element := &devrel_tutorial.Heading{
+  Text:  "hello",
+  Level: 2,
+}
+...
+fmt.Printf(element.AsHTML(t))
+```
+
+Base rendering logic, with string return:
+```go
+func render(data interface{}, t *template.Template) string {
+  var r string
+
+  switch data.(type) {
+  case *devrel_tutorial.Heading:
+    r = executeHeadingTemplate(data, t)
+    // all others ...
+  }
+
+  return r
+}
+...
+func executeHeadingTemplate(data interface{}, t *template.Template) string {
+  var w bytes.Buffer
+  util.LogIfError(t.ExecuteTemplate(&w, "heading", data))
+  return w.String()
+}
+```
+
+### Proto Rendering Logic Ideas
+- Generic rendering methods (`executeTemplate("heading")`) instead of 1:1 methods (`executeHeadingTemplate`) since we already have them registered by the template.
+
+#### Still debating: extend proto-package-logic
+- We extend Proto's package definition by adding interface methods for all subtypes that will take care of the rendering without having to go through an extra switch "dispatcher"/mapping. Hacky?
+- Template logic could be moved to this in-proto-package-file as well - although not feeling too stringly about this one. 
+- What about transitive imports? Render needs proto... proto should not need render
+
+#### Still debating: Global buffer/writer
+Similar reasoning for template reuse, although not feeling too strongly about either.
+
+- Using it makes code slightly uglier, having to pass it along all the time. Will not lend itself to concurency in the future unless tweaked, since it's append-only(??).
+```go
+var w bytes.Buffer
+fmt.Printf(element.AsHTML(t, &w))
+```
+
+- Not reusing it might reduce performance, since we'll be creating one for each element rendering. 
+```go
+fmt.Printf(element.AsHTML(t))
+...
+func (element *Heading) AsHTML(t *template.Template) str {
+  var w *bytes.Buffer
+  util.LogIfError(t.Execute(w, "heading", data))
+  return w.String()
+}
+```
+
+
+
+### Templating Logic Variation 1
+Reimplements current rending pattern, but now the smallest writable units are entire elements (as `templates`) instead of cumbersome conditional and nil-checking logic. This maintains collocation of an element's boilerplate and their string "rendering" (appending to buffer). Templates contain conditional logic and some dynamic actions (e.g. multiply "#" per `Headings.Level`). Possible loss of perfomance due to low variable reuse.
+
+Rendering Logic
+```go
+func executeHeadingTemplate(data interface{}, w *bytes.Buffer) string {
+  heading_template := `<h{{.Level}}> {{.Text}} </h{{.Level}}>`
+  t := template.Must(template.New("dummy").Parse(s))
+  util.LogIfError(t.Execute(w, data))
+}
+```
+
+### Rendering Logic Variation 
+### Proto Logic Variation 
+### Templating Logic Variation 
+
+
+### Templating Logic Variation 2
+We now drop the collocation of boilerplate templates, and store the templates in a global-to-package map as `{"template_name": "actual_template"}`. We also add a global-dummy template to be the reusable object to render templates.
+
+Templating Logic
+```go
+  // globals
+  var (
+    t = template.New("master-template-var")
+    ts = map[string]string{
+      "heading": `<h{{.Level}}> {{.Text}} </h{{.Level}}>`,
+    }
+  )
+  ...
+  for tmp_name, tmp_str := range ts { 
+    registerTemplate(t, tmp_name, tmp_str)
+  }
+  ...
+  func registerTemplate(t *template.Template, name string, tmp_str string) {
+    t.New(name).Parse(tmp_str)
+  }
+```
+
+Rendering Logic
+```go
+  func render(data interface{}, w *bytes.Buffer) string {
+    var r string
+
+    switch data.(type) {
+    case *devrel_tutorial.Heading:
+      r = executeTemplate("heading", data, w)
+    }
+
+    return r
+  }
+  ...
+  // HTML render
+  func executeTemplate(tmp_name string, data interface{}, w *bytes.Buffer) string {
+    util.LogIfError(t.ExecuteTemplate(w, tmp_name, data))
+    return w.String()
+  }
+```
+
+
+### Variation 3: 2+= Templates stored in files _without extensions_ to maintain proto-message-type-to-template-name, registered by `template.ParseFiles`.
+
+Proto Logic __same as above__
+Rendering Logic __same as above__
+
+Templating Logic
+```go
+  // globals
+  var (
+    t = template.New("master-template-var")
+    ts = []string{
+      "path/to/template/heading",
+    }
+  )
+  ...
+  var tmp_paths []string
+  for tmp_name := range ts { 
+    tmp_list.append(tmp_name)
+  }
+  ...
+  t.ParseFiles(tmp_paths...)
+  ...
+  // "path/to/template/heading" file
+  <h{{.Level}}> {{.Text}} </h{{.Level}}>
+```
+
+### Variation 4: __things get hacky?__, 3+= We extend Proto's package definition by adding a interfact method for all subtypes that will render them for us __automagically__ without having to go through an extra switch "dispatcher"/mapping.
+
+Templating Logic __same as above__ or coule be in Proto package
+
+Proto Logic
+```go
+  element := &devrel_tutorial.Heading{
+    Text:  "hello",
+    Level: 2,
+  }
+  ...
+  var w bytes.Buffer
+  fmt.Printf(element.AsHTML(t, &w))
+```
+
+Rendering Logic
+```go
+  // inside same Proto package, "devrel_tutorial", different file
+  type AsHTML interface {
+    AsHTML(t *template.Template, w *bytes.Buffer) str
+  }
+  ...
+  func (element *Heading) AsHTML(t *template.Template, w *bytes.Buffer) str {
+    util.LogIfError(t.Execute(w, "heading", data))
+    return w.String()
+  }
+  // one AsHTML for all proto-types
+```
+
+Variation 5: 4+= Templating Logic could be in Proto package
+
+Templating Logic
+```go
+  // globals
+  var (
+    t = template.New("master-template-var")
+    ts = []string{
+      "path/to/template/html-heading",
+    }
+  )
+  ...
+  var tmp_paths []string
+  for tmp_name := range ts { 
+    tmp_list.append(tmp_name)
+  }
+  ...
+  t.ParseFiles(tmp_paths...)
+  ...
+  // "path/to/template/heading" file
+  <h{{.Level}}> {{.Text}} </h{{.Level}}>
+```
+
+
+

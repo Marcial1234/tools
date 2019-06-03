@@ -1,0 +1,29 @@
+
+(func pointer)
+Need some type of function pointer to apply to channel/tree parsing galore!
+  AST: Things are already nodes, so no need
+  HTML Render: n-Dim string array ~ channelize! ~ turn from arrays to string!
+
+[
+  [
+    [Title],
+    [Image],
+    [Text],
+  ],
+  [
+    [Title],
+    [Text],
+  ],
+]
+
+Channelize/ProcessConcurrently(tree/struct, func pointer to apply to each ~):
+  if s.HasChildren():
+    ch := (make chan len(s.children))
+    for c in range(s.children):
+      ch <= ProcessConcurrently(c, func pointer)
+    Merge() # render only logic
+
+  # apply formatting
+  s.content = func pointer(s.type)
+  # tricky cuz you need block separation by 2 spaces, no?
+  squashContinousTextNodes()

@@ -1,9 +1,14 @@
 package devrel_tutorial
 
 import (
+	// "fmt"
 	"go/build"
 	"path/filepath"
 	"text/template"
+)
+
+var (
+	html *template.Template
 )
 
 func init() {
@@ -17,11 +22,23 @@ func init() {
 //     as a generic caller once a catch-all type, or
 //     field-persistent inferace-passing process is figured out
 
-// Leaf Types
-func (el *Heading) Html() string {
-	return executeTemplate(&el, "Heading", html)
+func Render(el interface{}) string {
+	tName := typeName(el)
+	switch {
+	case validTemplates[tName]:
+		return executeTemplate(el, tName, html)
+	case isNestedType(el):
+		return executeNestedTemplate(el, html)
+	default:
+		return "Nope!" + tName
+	}
 }
 
-func (el *StylizedText) Html() string {
-	return executeTemplate(&el, "StylizedText", html)
-}
+// // Leaf Types
+// func (el *Heading) Html() string {
+// 	return executeTemplate(&el, "Heading", html)
+// }
+
+// func (el *StylizedText) Html() string {
+// 	return executeTemplate(&el, "StylizedText", html)
+// }
