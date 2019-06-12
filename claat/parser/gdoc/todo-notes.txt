@@ -1,0 +1,29 @@
+protoc tutorial.proto -I=../third_party --go_out=../third_party
+
+follow thru switch for commands hot swaps
+  gdoc
+  == yes or yes ==
+  md
+  struct/proto
+  == yes or yes ==
+  html
+
+  // some code?
+  enum DataFormat = {
+    GOOGLE_DOC = 0;
+    MARKDOWN = 1;
+    PROTO = 2;
+    HTML = 3;
+  }
+
+  cdlb = Parse(c, MD, PROTO)
+
+  func Parse(content, from, to) {
+    # on these we move around strings, so
+    md = GoogleDocToMarkdown(content, from, to)
+    # Obligatory path ~
+    proto = MarkdownToProto(md, from, to)
+
+    html = ProtoToHtml(md, from, to)
+    # conditional return?
+  }

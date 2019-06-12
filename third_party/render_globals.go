@@ -20,15 +20,14 @@ var (
 )
 
 type (
-	ProtoRenderer interface {
-		Md() string
-		Html() string
+	ProtoExtractor interface {
+		GetInnerContent() interface{}
 	}
 )
 
 // Base Templating Logic
-func executeTemplate(d interface{}, tName string, t *template.Template) string {
+func executeTemplate(el interface{}, tmplName string, t *template.Template) string {
 	var w bytes.Buffer
-	util.LogIfError(t.ExecuteTemplate(&w, tName, d))
+	util.LogIfError(t.ExecuteTemplate(&w, tmplName, el))
 	return w.String()
 }

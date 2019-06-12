@@ -1,15 +1,33 @@
 package devrel_tutorial
 
-// TODO: Same generic TODO as for oneofs +
-//       Once that's figured out, name all repeated fields 'children'
+import (
+	"reflect"
+	"sync"
+	"text/template"
+)
 
-func (el *TextBlock) GetInnerContent() []ProtoRenderer {
-	desambiguatedContents := make([]ProtoRenderer, len(el.Children))
-	for i, c := range el.Children {
-		// TODO: Parrallel/concurrent
-		// 			 Perfomance change: O(h) vs O(n)
-		desambiguatedContents[i] = c.GetInnerContent()
+// This will be a template f(x) ~ needs to be accesed by
+func InnerContents(contents []ProtoExtractor, outputFormat string) []interface{} {
+	sz := len(contents)
+	wg := new(sync.WaitGroup)
+	renderedChildren := make([]interface{}, sz)
+	wg.Add(sz)
+
+	for i, c := range contents {
+		// O(h) vs default O(n)
+		go func(j int) {
+			defer wg.Done()
+
+			oneof := c.InnerContents()
+			o := strings.ToLower(outputFormat)
+			t := protorenderer.Templates[o]
+			tmplName := reflect.Typeof(el).Elem().Name()
+			renderedChildren[i] = executeTemplate(oneof, tmplName)
+		}(i)
 	}
-	return desambiguatedContents
-	// renderedContent
+
+	wg.Wait()
+	// will [beautifying/make HTML readable] later
+	return renderedChildren
+	// return string.Join(renderedChildren, "")
 }

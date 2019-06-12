@@ -1,0 +1,20 @@
+devrel_tutorial pkg             // Currently under 'third_party'
++-- tutorial.proto
++-- tutorial.pb.go              // Compiled proto, not included in repo
++-- nested_utils.go             // 'ProtoExtractor' interface implementation for 
+                                // oneof types and their concurrent rendering 
+
+generic_renderer.go             // Output-format-agnostic Rendering logic
+                                // Could be located anywhere
+
+proto-renderer  pkg             // Could be located anywhere
++-- html                        // HTML rendering package
+|   +-- render.go            
+|   +-- templates               // Templates rendering HTML
+|   |   +-- Heading
+|   |   +-- ... other templates
++-- md                          // Markdown rendering package
+|   +-- render.go            
+|   +-- templates
+|   |   +-- Heading
+|   |   +-- ... other templates
